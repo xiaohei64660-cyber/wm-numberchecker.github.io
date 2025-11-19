@@ -1,152 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Number Checker</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f0f2f5;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+<script>
+  window.onload = () => {
+    document.getElementById('numberInput').focus();
+  };
+
+  async function checkNumber() {
+    const input = document.getElementById('numberInput').value.trim();
+    const resultBox = document.getElementById('result');
+    const numberOutput = document.getElementById('numberOutput');
+    const chatterOutput = document.getElementById('chatterOutput');
+    const loading = document.getElementById('loading');
+
+    if (!input) {
+      alert("Please enter a number or username.");
+      return;
     }
 
-    .container {
-      background-color: #ffffff;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      width: 100%;
-      max-width: 500px;
-    }
+    resultBox.style.display = 'none';
+    loading.style.display = 'block';
 
-    h1 {
-      margin-bottom: 30px;
-      color: #333333;
-    }
+    // Determine if input is a number or username
+    const isNumber = /^\d+$/.test(input);
+    const queryField = isNumber ? 'number' : 'username';
+    const apiUrl = `https://sheetdb.io/api/v1/y55n7d2a0fqro/search?${queryField}=${input}`;
 
-    input[type="text"] {
-      width: 80%;
-      padding: 12px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      outline: none;
-      transition: border-color 0.3s;
-    }
+    try {
+      const res = await fetch(apiUrl);
+      const data = await res.json();
 
-    input[type="text"]:focus {
-      border-color: #007bff;
-    }
-
-    button {
-      padding: 12px 24px;
-      font-size: 16px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    #result {
-      margin-top: 30px;
-      padding: 20px;
-      background-color: #f9f9f9;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      display: none;
-      text-align: left;
-    }
-
-    #result p {
-      margin: 10px 0;
-      font-size: 16px;
-    }
-
-    #loading {
-      display: none;
-      margin-top: 20px;
-      font-size: 14px;
-      color: #666;
-    }
-
-    strong {
-      color: #555;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="container">
-    <h1>Number Checker</h1>
-    <input type="text" id="numberInput" placeholder="Search by number">
-    <br>
-    <button onclick="checkNumber()">Search</button>
-
-    <div id="loading">Searching...</div>
-
-    <div id="result">
-      <p><strong>Number:</strong> <span id="numberOutput"></span></p>
-      <p><strong>Chatter:</strong> <span id="chatterOutput"></span></p>
-    </div>
-  </div>
-
-  <script>
-    window.onload = () => {
-      document.getElementById('numberInput').focus();
-    };
-
-    async function checkNumber() {
-      const number = document.getElementById('numberInput').value.trim();
-      const apiUrl = `https://sheetdb.io/api/v1/y55n7d2a0fqro/search?number=${number}`;
-      const resultBox = document.getElementById('result');
-      const numberOutput = document.getElementById('numberOutput');
-      const chatterOutput = document.getElementById('chatterOutput');
-      const loading = document.getElementById('loading');
-
-      if (!number) {
-        alert("Please enter a number.");
-        return;
+      if (data.length > 0) {
+        numberOutput.textContent = isNumber ? data[0].number : data[0].username;
+        chatterOutput.textContent = data[0].chatter;
+      } else {
+        numberOutput.textContent = input;
+        chatterOutput.textContent = "No chatter found.";
       }
 
-      resultBox.style.display = 'none';
-      loading.style.display = 'block';
-
-      try {
-        const res = await fetch(apiUrl);
-        const data = await res.json();
-
-        if (data.length > 0) {
-          numberOutput.textContent = data[0].number;
-          chatterOutput.textContent = data[0].chatter;
-        } else {
-          numberOutput.textContent = number;
-          chatterOutput.textContent = "No chatter found.";
-        }
-
-        resultBox.style.display = 'block';
-      } catch (error) {
-        alert("Something went wrong. Please try again later.");
-        console.error(error);
-      } finally {
-        loading.style.display = 'none';
-      }
+      resultBox.style.display = 'block';
+    } catch (error) {
+      alert("Something went wrong. Please try again later.");
+      console.error(error);
+    } finally {
+      loading.style.display = 'none';
     }
-  </script>
-
-</body>
-</html>
+  }
+</script>
